@@ -1,0 +1,32 @@
+﻿services:
+  meraki_api:
+    image: meraki_api
+    build:
+      context: .
+      dockerfile: Meraki_API/Dockerfile
+    ports:
+      - "5001:8080"
+    volumes:
+      - meraki_api:/app
+    depends_on:
+      - meraki-db
+    networks:
+      - meraki_network
+  meraki-db:
+    container_name: meraki-db
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports:
+      - "1434:1433"
+    volumes:
+      - sqlserver:/var/opt/mssql
+    environment:
+      SA_PASSWORD: Password12345@
+      ACCEPT_EULA: Y
+    networks:
+      - meraki_network
+volumes:
+  meraki_api:
+  sqlserver:
+networks:
+  meraki_network:
+    driver: bridge

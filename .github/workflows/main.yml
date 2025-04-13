@@ -1,0 +1,35 @@
+name: backend-service-deployment
+
+on:
+  push:
+    branches:
+      main
+
+jobs:
+  docker-compose:
+    runs-on: self-hosted
+    environment: docker
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v2
+      # - name: Stop volume and remove exist container before create container
+      #   run: |
+      #       docker container stop smash_league_api || true
+      #       docker container rm smash_league_api || true
+      #       docker volume rm smash-league-backend_backend_service || true
+      #       docker container stop database || true
+      #       docker container rm database || true
+      #       docker volume rm smash-league-backend_postgres_data || true
+      - name: Set up environment variable for docker
+        run: |
+          cd Meraki_API
+          touch appsettings.json
+          echo "${{ secrets.APPSETTINGS }}" >> appsettings.json
+      - name: Display .env file
+        run: |
+          readlink -f .env
+
+      - name: Run "database"
+        run: docker compose up -d meraki-db
+      - name: Run "docker compose"
+        run: docker compose up --build -d meraki_api
